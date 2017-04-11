@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Basic</title>
+	<script src="jq.js"></script>
+</head>
+<body>
+<style type="text/css">
+	body, html {
+		height: 100%;
+		margin: 0px;
+	}
+
+	#canvas { background-color: black; cursor: url(cursor.png), auto;}
+	
+</style>
+
+<canvas id="canvas" width="1000" height="500"></canvas>
+
+<script>
+
+	var canvas = document.getElementById('canvas');
+	var context = canvas.getContext('2d');
+	context.rect(20, 20, 500, 500);
+	context.fillStyle = "black";
+	context.fill();
+
+
+
+	var canvasOffset = $("#canvas").offset();
+	var offsetX = canvasOffset.left;
+	var offsetY = canvasOffset.top;
+
+	// animation variables
+	var currentX = 10;
+	var currentY = 10;
+	var cursorPosX = -5;
+	var cursorPosY = -5;
+	var drag = 500;
+	var timer;
+	var points;
+	var currentFrame;
+	// var previousX = currentX;
+	// var previousY = currentY;
+
+
+	function animate() {
+		
+		//currentFrame = 0;
+		if(currentFrame !== 0) {
+			//currentFrame = 0;
+		}
+		var point = points[currentFrame++];
+	
+		draw(point.x, point.y);
+
+		// reset current position here so that player ignores previous destination 
+		// if it hasn't reached there when a new destination is given.
+		currentX = point.x;
+		currentY = point.y;
+		
+
+		// refire the timer until out-of-points
+		if (currentFrame < points.length) {
+			
+			//currentFrame  = p;
+			//console.log(drag);
+			//console.log(currentFrame);
+			timer = setTimeout(animate, 1000 / 60);
+		}
+
+		
+	}
+
+	function linePoints(x1, y1, x2, y2, frames) {
+		var dx = x2 - x1;
+		var dy = y2 - y1;
+		var length = Math.sqrt(dx * dx + dy * dy);
+		
+		var incrementX = dx / frames;
+		var incrementY = dy / frames;
+		var a = new Array();
+
+		a.push({
+			x: x1,
+			y: y1
+		});
+		
+		for (var frame = 0; frame < frames - 1; frame++) {
+			a.push({
+				x: x1 + (incrementX * frame),
+				y: y1 + (incrementY * frame)
+			});
+
+			
+			
+		}
+		a.push({
+			x: x2,
+			y: y2
+		});
+
+		
+		return (a);
+	}
+
+	function draw(x, y) {
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		context.beginPath();
+		context.fillStyle = "white";
+		context.arc(x, y, 5, 0, 2 * Math.PI, false)
+		context.fill();
+		drawCursor(cursorPosX, cursorPosY);
+		context.fill();
+		context.stroke();
+	}
+
+	function handleMouseDown(e) {
+		clearInterval(timer);
+		mouseX = parseInt(e.clientX - offsetX);
+		mouseY = parseInt(e.clientY - offsetY);
+
+		// Put your mousedown stuff here
+		currentFrame = 0;
+		points = linePoints(currentX, currentY, mouseX, mouseY, drag);
+		
+		
+		// currentX = mouseX;
+		// currentY = mouseY;
+		
+		animate();
+	}
+
+	$("#canvas").on("click", function (e) {
+		drag = 200;
+		handleMouseDown(e);
+		console.log(drag);
+	});
+
+	$("#canvas").on("dblclick", function (e) {
+		drag = 100;
+		handleMouseDown(e);
+		console.log(drag);
+	});
+
+	$("#canvas").on("mousemove", function (e) {
+	
+		console.log('hovered');
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		cursorPosX = e.clientX;
+		cursorPosY = e.clientY;
+		draw(currentX, currentY);
+		
+	});
+
+	function drawCursor (x, y) {
+		
+		context.fillStyle = "rgba(255, 255, 255, 0.72)";
+		context.rect(x- offsetX, y - offsetY, 10, 10);
+		//context.fill();
+		cursorPosX = x;
+		cursorPosY = y;
+	}
+
+	
+
+	draw(10, 10);
+
+</script>
+</body>
+</html>
