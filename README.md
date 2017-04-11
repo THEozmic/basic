@@ -1,1 +1,1 @@
-"# My project's README" 
+A simple Htm5 canvas game.
